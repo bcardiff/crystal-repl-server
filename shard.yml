@@ -1,0 +1,13 @@
+name: crystal-repl-server
+version: 0.1.0
+
+authors:
+  - Brian J. Cardiff <bcardiff@gmail.com>
+
+targets:
+  crystal-repl-server:
+    main: src/crystal-repl-server.cr
+
+crystal: 1.9.2
+
+license: MIT
