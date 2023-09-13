@@ -6,7 +6,7 @@ authors:
 
 targets:
   crystal-repl-server:
-    main: src/crystal-repl-server.cr
+    main: src/server/cli.cr
 
 crystal: 1.9.2
 
