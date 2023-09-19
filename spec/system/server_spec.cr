@@ -2,63 +2,15 @@ require "../spec_helper"
 
 # these specs run agains the ./bin/crystal-repl-server executable
 require "http/client"
-require "../../src/common/api"
+require "../../src/client"
+
+CRYSTAL_REPL_SERVER_BIN = Path[__DIR__].parent.parent.join("bin", "crystal-repl-server").to_s
 
 include Crystal::Repl::Server::API
 
-class Client
-  @socket_path : String
-  @input : IO::Memory
-  @output : IO::Memory
-  @error : IO::Memory
-  @server : Process
-  @client : HTTP::Client
-
-  def initialize
-    @socket_path = File.tempname("crystal", ".sock")
-
-    @input = IO::Memory.new
-    @output = IO::Memory.new
-    @error = IO::Memory.new
-
-    exec_dir = Path[__DIR__].parent.parent.join("bin", "crystal-repl-server").to_s
-    @server = Process.new(exec_dir, {@socket_path}, input: @input, output: @output, error: @error)
-
-    @client = retry do
-      HTTP::Client.new(UNIXSocket.new(@socket_path))
-    end
-  end
-
-  def close
-    @server.close
-    @client.close
-    # TODO delete socket
-    # @socket.delete
-  end
-
-  def raw_post(path, body)
-    @client.post(path, body: body).body
-  end
-
-  def post(path, *, body = nil, as result_type : T.class) : T forall T
-    result_type.from_json(raw_post(path, body: body))
-  end
-
-  private def retry
-    last_ex = nil
-    5.times do
-      return yield
-    rescue ex
-      sleep 0.1
-      last_ex = ex
-    end
-    raise last_ex.not_nil!
-  end
-end
-
-def it_(description, file = __FILE__, line = __LINE__, end_line = __END_LINE__, &block : Client ->)
+def it_(description, file = __FILE__, line = __LINE__, end_line = __END_LINE__, &block : Crystal::Repl::Server::Client ->)
   it(description, file, line, end_line) do
-    client = Client.new
+    client = Crystal::Repl::Server::Client.start_server_and_connect(server: CRYSTAL_REPL_SERVER_BIN)
     begin
       block.call(client)
     ensure
