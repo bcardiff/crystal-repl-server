@@ -52,4 +52,16 @@ class Crystal::Repl::Server::Client
     end
     raise last_ex.not_nil!
   end
+
+  def start : StartResult
+    post("/v1/start", as: StartResult)
+  end
+
+  def eval(body : String) : EvalResponse
+    post("/v1/eval", body: body, as: EvalResponse)
+  end
+
+  def check_syntax(body : String) : CheckSyntaxResponse
+    post("/v1/check_syntax", body: body, as: CheckSyntaxResponse)
+  end
 end

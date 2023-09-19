@@ -21,40 +21,39 @@ end
 
 describe "http interpreter" do
   it_ "can start an interpreter" do |c|
-    c.post("/v1/start", as: StartResult)
-      .should eq(StartResult.new("ok"))
+    c.start.should eq(StartResult.new("ok"))
   end
 
   it_ "can evaluate with prelude" do |c|
-    c.post("/v1/start", as: StartResult)
-    c.post("/v1/eval", body: "1 + 2", as: EvalResponse)
+    c.start
+    c.eval("1 + 2")
       .should eq(EvalSuccess.new("3", "Int32", "Int32"))
   end
 
   describe "can return static and runtime type information for" do
     it_ "MixedUnionType" do |c|
-      c.post("/v1/start", as: StartResult)
-      c.post("/v1/eval", body: "1 || \"a\"", as: EvalResponse)
+      c.start
+      c.eval("1 || \"a\"")
         .should eq(EvalSuccess.new("1", "Int32", "(Int32 | String)"))
     end
 
     it_ "UnionType" do |c|
-      c.post("/v1/start", as: StartResult)
-      c.post("/v1/eval", body: "true || 1", as: EvalResponse)
+      c.start
+      c.eval("true || 1")
         .should eq(EvalSuccess.new("true", "Bool", "(Bool | Int32)"))
     end
   end
 
   it_ "can check syntax errors" do |c|
-    c.post("/v1/start", as: StartResult)
-    c.post("/v1/check_syntax", body: "a = [1", as: CheckSyntaxResponse)
+    c.start
+    c.check_syntax("a = [1")
       .should eq(CheckSyntaxError.new(
         "expecting token ']', not 'EOF'",
         ["syntax error in :1",
          "Error: expecting token ']', not 'EOF'",
         ])
       )
-    c.post("/v1/check_syntax", body: "a = 1\nb = foo(1]", as: CheckSyntaxResponse)
+    c.check_syntax("a = 1\nb = foo(1]")
       .should eq(CheckSyntaxError.new(
         "expecting token ')', not ']'",
         ["syntax error in :2",
@@ -64,7 +63,7 @@ describe "http interpreter" do
   end
 
   it_ "evaluate has backtrace of compile errors" do |c|
-    c.post("/v1/start", as: StartResult)
+    c.start
     # TODO: it seems the interpreter is unable to generate:
     #
     #  5 | 1.invalid_method
@@ -72,7 +71,7 @@ describe "http interpreter" do
     # Error: undefined method 'invalid_method' for Int32
     #
     # Which would be nicer output for the backtrace.
-    c.post("/v1/eval", body: "1.invalid_method", as: EvalResponse)
+    c.eval("1.invalid_method")
       .should eq(EvalError.new(
         "undefined method 'invalid_method' for Int32",
         ["error in line 1",
