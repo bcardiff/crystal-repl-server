@@ -64,4 +64,16 @@ class Crystal::Repl::Server::Client
   def check_syntax(body : String) : CheckSyntaxResponse
     post("/v1/check_syntax", body: body, as: CheckSyntaxResponse)
   end
+
+  def read_stdout : String?
+    res = @output.rewind.gets_to_end.presence
+    @output.clear
+    res
+  end
+
+  def read_stderr : String?
+    res = @error.rewind.gets_to_end.presence
+    @error.clear
+    res
+  end
 end
