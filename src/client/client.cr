@@ -9,18 +9,18 @@ class Crystal::Repl::Server::Client
   @server : Process
   @client : HTTP::Client
 
-  def self.start_server_and_connect(*, server : String, socket : String? = nil) : self
-    new(server: server, socket: socket || File.tempname("crystal", ".sock"))
+  def self.start_server_and_connect(*, server : String, socket : String? = nil, env : Process::Env = nil, chdir : Path | String? = nil) : self
+    new(server: server, socket: socket || File.tempname("crystal", ".sock"), env: env, chdir: chdir)
   end
 
-  def initialize(*, server : String, socket : String)
+  def initialize(*, server : String, socket : String, env : Process::Env = nil, chdir : Path | String? = nil)
     @socket_path = socket
 
     @input = IO::Memory.new
     @output = IO::Memory.new
     @error = IO::Memory.new
 
-    @server = Process.new(server, {@socket_path}, input: @input, output: @output, error: @error)
+    @server = Process.new(server, {@socket_path}, input: @input, output: @output, error: @error, env: env, chdir: chdir)
 
     @client = retry do
       HTTP::Client.new(UNIXSocket.new(@socket_path))
