@@ -3,6 +3,12 @@ require "../crystal-repl-server"
 require "../common/api"
 require "../compiler/no_vendor_requires"
 require "../compiler/ext"
+require "../compiler/command"
+
+if ARGV[0]? == "env"
+  Crystal::Command.run
+  exit 0
+end
 
 include Crystal::Repl::Server::API
 
