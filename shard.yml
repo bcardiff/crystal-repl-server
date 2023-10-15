@@ -8,6 +8,6 @@ targets:
   crystal-repl-server:
     main: src/server/cli.cr
 
-crystal: 1.9.2
+crystal: 1.10.1
 
 license: MIT

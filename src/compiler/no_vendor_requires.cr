@@ -77,3 +77,6 @@ require "compiler/crystal/interpreter/to_bool"
 require "compiler/crystal/interpreter/value"
 
 # end require "compiler/crystal/interpreter/*"
+
+# additional requeries due to dependencies of the compiler into tools
+require "compiler/crystal/tools/dependencies"
