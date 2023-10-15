@@ -51,6 +51,12 @@ In either case, the crystal-repl-server binary will be left in the `./bin/crysta
 
 To specify a specific llvm-config, use the `LLVM_CONFIG` environment variable.
 
+To build the repl with `--relase` pass `FLAGS=--release`.
+
+```
+make clean bin/crystal-repl-server FLAGS=--release
+```
+
 ### Specs
 
 To run the specs do
